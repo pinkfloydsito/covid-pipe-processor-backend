@@ -91,7 +91,9 @@ class PipeAdmin(admin.ModelAdmin):
 
     move.short_description = "Mover pipes"
 
+
 class MovementAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('pipe', 'destination', 'origin', )
     list_filter = (DateListFilter,
         OriginListFilter, DestinationListFilter, PipeListFilter, )
     list_display = ('id', 'origin', 'destination', 'created')

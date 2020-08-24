@@ -21,6 +21,9 @@ class Location(TimeStampedModel):
 
 
 class Movement(TimeStampedModel):
+    description = models.CharField(
+        max_length=200, default='',
+        blank=True,)
     origin = models.ForeignKey(
         Location, on_delete=models.PROTECT, related_name="movement_origin",
         null=True, default=None)
@@ -46,6 +49,10 @@ class CovidPipe(TimeStampedModel):
     name = models.CharField(
         max_length=50, default='',
         blank=True, unique=True)
+
+    alias = models.ForeignKey(
+        'CovidPipe', on_delete=models.PROTECT,
+        related_name="last_pipe", blank=True, null=True)
 
     last_movement = models.ForeignKey(
         'Movement', on_delete=models.PROTECT,
