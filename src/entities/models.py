@@ -56,7 +56,7 @@ class CovidPipe(TimeStampedModel):
         related_name="last_pipe", blank=True, null=True)
 
     last_movement = models.ForeignKey(
-        'Movement', on_delete=models.CASCADE,
+        'Movement', on_delete=models.SET_NULL,
         related_name="last_movement", blank=True, null=True)
 
     class Meta:
