@@ -94,12 +94,11 @@ class PipeAdmin(admin.ModelAdmin):
     actions = ['move', ]
     search_fields = ['name']
     form = CovidPipeForm
-    list_filter = (LocationFilter, )
+    list_filter = ('con_muestra', LocationFilter, )
     
     def move(self, request, queryset):
         locations = Location.objects.all()
         if 'apply' in request.POST:
-            import ipdb; ipdb.set_trace()
             location = request.POST.get('location')[0]
             description = request.POST.get('description')[0]
             has_muestra = request.POST.get('con_muestra', None)
