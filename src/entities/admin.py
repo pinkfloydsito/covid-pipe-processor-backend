@@ -95,8 +95,9 @@ class PipeAdmin(admin.ModelAdmin):
         locations = Location.objects.all()
         if 'apply' in request.POST:
             location = request.POST.get('location')[0]
+            description = request.POST.get('description')[0]
             for pipe in queryset:
-                Movement.objects.create(origin=pipe.last_movement.destination if pipe.last_movement else None,
+                Movement.objects.create(description=description, origin=pipe.last_movement.destination if pipe.last_movement else None,
                                         destination=Location.objects.get(id=location), pipe=pipe)
         else:
             return render(request, 'admin/move.html', context={'pipes':queryset, 'locations': locations})

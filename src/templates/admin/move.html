@@ -9,7 +9,10 @@
     </p>
     <input type="hidden" name="_selected_action" value="{{ pipe.pk }}" />
   {% endfor %}
-
+    <>
+      <textarea rows = "5" cols = "60" name="description">
+      </textarea>
+      <br>
     <select id="loc" name="location">
     {% for loc in locations %}
     <option value="{{loc.id}}">
