@@ -89,7 +89,7 @@ class DestinationListFilter(admin.SimpleListFilter):
 
 
 class PipeAdmin(admin.ModelAdmin):
-    autocomplete_fields = ('last_movement', )
+    autocomplete_fields = ('last_movement', 'alias')
     list_per_page = 20000
     actions = ['move', ]
     search_fields = ['name']
@@ -116,7 +116,7 @@ class PipeAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'range_pipes', 'last_movement', 'con_muestra'),
+            'fields': ('name', 'range_pipes', 'last_movement', 'con_muestra', 'alias'),
         }),
     )
 
