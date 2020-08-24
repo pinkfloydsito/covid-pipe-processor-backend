@@ -99,8 +99,8 @@ class PipeAdmin(admin.ModelAdmin):
     def move(self, request, queryset):
         locations = Location.objects.all()
         if 'apply' in request.POST:
-            location = request.POST.get('location')[0]
-            description = request.POST.get('description')[0]
+            location = request.POST.get('location')
+            description = request.POST.get('description')
             has_muestra = request.POST.get('con_muestra', None)
             con_muestra = False
             if has_muestra is not None:
