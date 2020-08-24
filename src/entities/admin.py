@@ -6,6 +6,7 @@ from django.db.models import Q
 from entities.models import CovidPipe, Location, Movement 
 from entities.forms import CovidPipeForm
 
+
 class DateListFilter(admin.SimpleListFilter):
     title = _('date')
 
@@ -36,6 +37,21 @@ class PipeListFilter(admin.SimpleListFilter):
         if self.value():
             movements = queryset.filter(Q(pipe=self.value()))
             return movements
+
+class LocationFilter(admin.SimpleListFilter):
+    title = _('Last Location')
+
+    parameter_name = 'last_movement'
+
+    def lookups(self, request, model_admin):
+        locations = Location.objects.all().distinct()
+
+        return [[location.id, location.name] for location in locations]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            pipes = queryset.filter(Q(last_movement__destination=self.value()))
+            return pipes
 
 class OriginListFilter(admin.SimpleListFilter):
     title = _('origin')
@@ -69,10 +85,12 @@ class DestinationListFilter(admin.SimpleListFilter):
 
 
 class PipeAdmin(admin.ModelAdmin):
+    list_per_page = 20000
     actions = ['move', ]
     search_fields = ['name']
     form = CovidPipeForm
-
+    list_filter = (LocationFilter, )
+    
     def move(self, request, queryset):
         locations = Location.objects.all()
         if 'apply' in request.POST:

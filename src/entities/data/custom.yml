@@ -1,0 +1,5 @@
+- model: entities.Location
+  pk: 1
+  fields:
+    nombre: Laboratorio
+    activo: true
