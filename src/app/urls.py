@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
+from entities.urls import urlpatterns
 from django.conf import settings
 
 from helpers.health_check import health_check
@@ -9,7 +10,7 @@ urlpatterns = [
     # Enables the DRF browsable API page
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("health_check/", health_check, name="health_check"),
-]
+] + urlpatterns
 
 if settings.ENVIRONMENT == "development":
     import debug_toolbar

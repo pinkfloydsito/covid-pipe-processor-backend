@@ -23,13 +23,13 @@ SECRET_KEY = env(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", False)
 ENVIRONMENT = env("ENV")
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=['0.0.0.0'])
 
 # CORS
 CORS_ORIGIN_ALLOW_ALL = env.bool("CORS_ORIGIN_ALLOW_ALL", default=False)
 if not CORS_ORIGIN_ALLOW_ALL:
     CORS_ORIGIN_WHITELIST = env.str(
-        "CORS_ORIGIN_WHITELIST", default="localhost,127.0.0.1"
+        "CORS_ORIGIN_WHITELIST", default="localhost,127.0.0.1,0.0.0.0"
     ).split(",")
 
 # Application definition
@@ -50,7 +50,7 @@ THIRD_PARTY_APPS = [
     "versatileimagefield",
 ]
 
-PROJECT_APPS = ["users"]
+PROJECT_APPS = ["users", "entities"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
