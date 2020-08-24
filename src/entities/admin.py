@@ -85,6 +85,7 @@ class DestinationListFilter(admin.SimpleListFilter):
 
 
 class PipeAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('last_movement', )
     list_per_page = 20000
     actions = ['move', ]
     search_fields = ['name']
@@ -112,6 +113,7 @@ class PipeAdmin(admin.ModelAdmin):
 
 
 class MovementAdmin(admin.ModelAdmin):
+    search_fields = ('destination__name', )
     autocomplete_fields = ('pipe', 'destination', 'origin', )
     list_filter = (DateListFilter,
         OriginListFilter, DestinationListFilter, PipeListFilter, )
