@@ -46,9 +46,14 @@ class LocationFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         locations = Location.objects.all().distinct()
 
-        return [[location.id, location.name] for location in locations]
+        result = []
+        result.append(['empty', 'Empty'])
+        result.extend([[location.id, location.name] for location in locations])
+        return result
 
     def queryset(self, request, queryset):
+        if self.value() == 'empty':
+            return queryset.filter(Q(last_movement__isnull=True))
         if self.value():
             pipes = queryset.filter(Q(last_movement__destination=self.value()))
             return pipes
@@ -75,7 +80,6 @@ class DestinationListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         locations = Location.objects.all().distinct()
-
         return [[location.id, location.name] for location in locations]
 
     def queryset(self, request, queryset):
@@ -95,9 +99,17 @@ class PipeAdmin(admin.ModelAdmin):
     def move(self, request, queryset):
         locations = Location.objects.all()
         if 'apply' in request.POST:
+            import ipdb; ipdb.set_trace()
             location = request.POST.get('location')[0]
             description = request.POST.get('description')[0]
+            has_muestra = request.POST.get('con_muestra', None)
+            con_muestra = False
+            if has_muestra is not None:
+                con_muestra = True
+
             for pipe in queryset:
+                pipe.con_muestra = con_muestra
+                pipe.save()
                 Movement.objects.create(description=description, origin=pipe.last_movement.destination if pipe.last_movement else None,
                                         destination=Location.objects.get(id=location), pipe=pipe)
         else:
@@ -105,7 +117,7 @@ class PipeAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('name', 'range_pipes', 'last_movement', ),
+            'fields': ('name', 'range_pipes', 'last_movement', 'con_muestra'),
         }),
     )
 

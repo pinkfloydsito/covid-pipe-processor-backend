@@ -31,7 +31,7 @@ class Movement(TimeStampedModel):
         Location, on_delete=models.PROTECT, related_name="movement_destination",
         null=True, default=None)
     pipe = models.ForeignKey(
-        'CovidPipe', on_delete=models.PROTECT,
+        'CovidPipe', on_delete=models.CASCADE,
         null=True, blank=True,
         related_name="movement")
     date = models.DateTimeField(default=datetime.now, blank=True)
@@ -46,6 +46,7 @@ class Movement(TimeStampedModel):
 
 
 class CovidPipe(TimeStampedModel):
+    con_muestra = models.BooleanField(default=False)
     name = models.CharField(
         max_length=50, default='',
         blank=True, unique=True)
@@ -55,7 +56,7 @@ class CovidPipe(TimeStampedModel):
         related_name="last_pipe", blank=True, null=True)
 
     last_movement = models.ForeignKey(
-        'Movement', on_delete=models.PROTECT,
+        'Movement', on_delete=models.CASCADE,
         related_name="last_movement", blank=True, null=True)
 
     class Meta:

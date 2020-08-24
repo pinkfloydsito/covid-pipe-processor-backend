@@ -1,18 +1,17 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
 <form action="" method="post">{% csrf_token %}
-    <p>Select ubicaci&oacute;n<p>
     <input type="hidden" name="post" value="yes" />
     {% for pipe in pipes %}
-    <p>
-      {{ pipe }}
-    </p>
     <input type="hidden" name="_selected_action" value="{{ pipe.pk }}" />
   {% endfor %}
-    <>
       <textarea rows = "5" cols = "60" name="description">
       </textarea>
-      <br>
+      <br/>
+
+<label for="con_muestra"> Con muestra?</label>
+<input type="checkbox" id="con_muestra" name="con_muestra" value="false" />
+    <p>Select ubicaci&oacute;n<p>
     <select id="loc" name="location">
     {% for loc in locations %}
     <option value="{{loc.id}}">
