@@ -71,6 +71,7 @@ class CovidPipe(TimeStampedModel):
 
     class Meta:
         verbose_name_plural = 'pipes'
+        ordering = ['-name']
 
     def __str__(self):
         return self.name

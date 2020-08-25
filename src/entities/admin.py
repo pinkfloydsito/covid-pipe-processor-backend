@@ -1,3 +1,5 @@
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
 from django.utils.translation import gettext_lazy as _
 from rangefilter.filter import DateRangeFilter
 from django.template.response import TemplateResponse
@@ -92,16 +94,33 @@ class DestinationListFilter(admin.SimpleListFilter):
 
 
 class PipeAdmin(admin.ModelAdmin):
+    class Meta:
+        ordering = ('-myinteger',)
+
     autocomplete_fields = ('last_movement', 'alias')
     list_per_page = 20000
     actions = ['move', 'update_dates',]
     search_fields = ['name']
     form = CovidPipeForm
     list_filter = (( 'last_movement__date_created', DateRangeFilter), ('last_movement__date_sent', DateRangeFilter), 'con_muestra', LocationFilter, )
-    list_display = ('name', 'get_date_created', 'get_date_sent', 'get_last_movement')
+    list_display = ('ordernamiento', 'name', 'get_date_created', 'get_date_sent', 'get_location')
 
-    def get_last_movement(self, obj):
-        return 'Tiene movimiento' if obj.last_movement else 'No tiene movimiento'
+    def get_queryset(self, request):
+        qs = super(PipeAdmin, self).get_queryset(request)
+        qs = qs.extra(
+            select={'myinteger': "CAST(substring(name FROM '^[0-9]+') AS INTEGER)"}
+        ).order_by('myinteger', 'name')
+        return qs
+
+    def ordernamiento(self, obj):
+        return obj.myinteger
+
+    ordernamiento.admin_order_field = 'myinteger'
+    ordernamiento.short_name_description = 'Name Sort'
+
+    def get_location(self, obj):
+        return obj.last_movement.destination if obj.last_movement else 'No tiene ubicación'
+
     def get_date_created(self, obj):
         return (obj.last_movement and obj.last_movement.date_created) or ''
 
