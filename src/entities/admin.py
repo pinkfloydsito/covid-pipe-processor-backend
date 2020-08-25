@@ -103,7 +103,7 @@ class PipeAdmin(admin.ModelAdmin):
     search_fields = ['name']
     form = CovidPipeForm
     list_filter = (( 'last_movement__date_created', DateRangeFilter), ('last_movement__date_sent', DateRangeFilter), 'con_muestra', LocationFilter, )
-    list_display = ('ordernamiento', 'name', 'get_date_created', 'get_date_sent', 'get_location')
+    list_display = ('name', 'ordernamiento', 'get_date_created', 'get_date_sent', 'get_location')
 
     def get_queryset(self, request):
         qs = super(PipeAdmin, self).get_queryset(request)
