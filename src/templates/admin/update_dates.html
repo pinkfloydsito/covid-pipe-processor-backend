@@ -5,20 +5,8 @@
     {% for pipe in pipes %}
     <input type="hidden" name="_selected_action" value="{{ pipe.pk }}" />
   {% endfor %}
-      <textarea rows = "5" cols = "60" name="description">
-      </textarea>
       <br/>
 
-<label for="con_muestra"> Con muestra?</label>
-<input type="checkbox" id="con_muestra" name="con_muestra" value="false" />
-    <p>Select ubicaci&oacute;n<p>
-    <select id="loc" name="location">
-    {% for loc in locations %}
-    <option value="{{loc.id}}">
-      {{loc.name}}
-    </option>
-    {% endfor %}
-    </select>
  <fieldset>
    <legend>Rango(Opcional) <strong>Si especifica rango, no se procesarán las otras pruebas seleccionadas</strong>:</legend>
   <label for="fname">Inicio:</label>
@@ -26,7 +14,23 @@
   <label for="lname">Fin:</label>
   <input type="text" id="lname" name="fin"><br><br>
  </fieldset>
-    <input type="hidden" name="action" value="move" />
-    <input type="submit" name="apply" value="move"/>
+
+ <fieldset>
+   <legend>Actualización de múltiples fechas <strong>(Cambio de estado / fechas)</strong>:</legend>
+  <label for="created">Created:</label>
+  <input type="date" id="created" name="created"><br><br>
+
+  <label for="moved">Moved:</label>
+  <input type="date" id="moved" name="moved"><br><br>
+
+  <label for="estado">Estado:</label>
+  <select name="estado" id="estado">
+    <option value="creado">Creado</option>
+    <option value="enviado">Enviado</option>
+  </select>
+  <br><br>
+ </fieldset>
+    <input type="hidden" name="action" value="update_dates" />
+    <input type="submit" name="apply" value="update_dates"/>
 </form>
 {% endblock %}

@@ -21,6 +21,16 @@ class Location(TimeStampedModel):
 
 
 class Movement(TimeStampedModel):
+    CREATED = 1
+    SENT = 2
+    STATES = (
+        (CREATED, 'A ENVIAR'),
+        (SENT, 'ENVIADO'),
+    )
+    date_sent = models.DateField(null=True, blank=True)
+    date_created = models.DateField(null=True, blank=True)
+    state = models.PositiveSmallIntegerField(
+        choices=STATES, default=CREATED)
     description = models.CharField(
         max_length=200, default='',
         blank=True,)

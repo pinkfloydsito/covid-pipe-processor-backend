@@ -1,10 +1,13 @@
 from django.utils.translation import gettext_lazy as _
+from rangefilter.filter import DateRangeFilter
 from django.template.response import TemplateResponse
 from django.shortcuts import render
 from django.contrib import admin
 from django.db.models import Q
 from entities.models import CovidPipe, Location, Movement 
 from entities.forms import CovidPipeForm
+
+import re
 
 
 class DateListFilter(admin.SimpleListFilter):
@@ -91,10 +94,25 @@ class DestinationListFilter(admin.SimpleListFilter):
 class PipeAdmin(admin.ModelAdmin):
     autocomplete_fields = ('last_movement', 'alias')
     list_per_page = 20000
-    actions = ['move', ]
+    actions = ['move', 'update_dates',]
     search_fields = ['name']
     form = CovidPipeForm
-    list_filter = ('con_muestra', LocationFilter, )
+    list_filter = (( 'last_movement__date_created', DateRangeFilter), ('last_movement__date_sent', DateRangeFilter), 'con_muestra', LocationFilter, )
+    list_display = ('name', 'get_date_created', 'get_date_sent', 'get_last_movement')
+
+    def get_last_movement(self, obj):
+        return 'Tiene movimiento' if obj.last_movement else 'No tiene movimiento'
+    def get_date_created(self, obj):
+        return (obj.last_movement and obj.last_movement.date_created) or ''
+
+    get_date_created.short_description = 'date_created'
+    get_date_created.admin_order_field = 'last_movement__date_created'
+
+    def get_date_sent(self, obj):
+        return (obj.last_movement and obj.last_movement.date_sent) or ''
+
+    get_date_sent.short_description = 'date_sent'
+    get_date_sent.admin_order_field = 'last_movement__date_sent'
     
     def move(self, request, queryset):
         locations = Location.objects.all()
@@ -106,13 +124,145 @@ class PipeAdmin(admin.ModelAdmin):
             if has_muestra is not None:
                 con_muestra = True
 
+            inicio = request.POST.get('inicio', None)
+            fin = request.POST.get('fin', None)
+
+            if inicio and fin:
+                try:
+                    match_0 = re.match(r"([a-z]+)([0-9]+)", inicio, re.I)
+                    match_1 = re.match(r"([a-z]+)([0-9]+)", fin, re.I)
+                    items_0 = None
+                    if match_0:
+                        items_0 = match_0.groups()
+
+                    items_1 = None
+                    if match_1:
+                        items_1 = match_1.groups()
+                    
+                    if match_0 and match_1:
+                        for i in range(int(items_0[1]), int(items_1[1])+1):
+                            try:
+                                pipe = CovidPipe.objects.get(name="{}{}".format(items_0[0], str(i)))
+                                pipe.con_muestra = con_muestra
+                                pipe.save()
+                                Movement.objects.create(
+                                    description=description,
+                                    origin=pipe.last_movement.destination if pipe.last_movement else None,
+                                    destination=Location.objects.get(id=location), pipe=pipe)
+                            except Exception:
+                                pass
+                    else:
+                        for i in range(int(inicio), int(fin)+1):
+                            try:
+                                pipe = CovidPipe.objects.get(name=str(i))
+                                pipe.con_muestra = con_muestra
+                                pipe.save()
+                                Movement.objects.create(
+                                    description=description,
+                                    origin=pipe.last_movement.destination if pipe.last_movement else None,
+                                    destination=Location.objects.get(id=location), pipe=pipe)
+                                
+                            except Exception:
+                                pass
+                                    
+                except Exception as e:
+                    print(e)
+
+                return
+               
             for pipe in queryset:
                 pipe.con_muestra = con_muestra
                 pipe.save()
-                Movement.objects.create(description=description, origin=pipe.last_movement.destination if pipe.last_movement else None,
-                                        destination=Location.objects.get(id=location), pipe=pipe)
+                Movement.objects.create(description=description, origin=pipe.last_movement.destination if pipe.last_movement else None, destination=Location.objects.get(id=location), pipe=pipe)
+
         else:
             return render(request, 'admin/move.html', context={'pipes':queryset, 'locations': locations})
+
+    def update_dates(self, request, queryset):
+        locations = Location.objects.all()
+        if 'apply' in request.POST:
+            location = request.POST.get('location')
+            description = request.POST.get('description')
+            has_muestra = request.POST.get('con_muestra', None)
+
+            inicio = request.POST.get('inicio', None)
+            fin = request.POST.get('fin', None)
+
+            created = request.POST.get('created', None)
+            moved = request.POST.get('moved', None)
+
+            estado = request.POST.get('estado', None)
+
+            if inicio and fin:
+                try:
+                    match_0 = re.match(r"([a-z]+)([0-9]+)", inicio, re.I)
+                    match_1 = re.match(r"([a-z]+)([0-9]+)", fin, re.I)
+                    items_0 = None
+                    if match_0:
+                        items_0 = match_0.groups()
+
+                    items_1 = None
+                    if match_1:
+                        items_1 = match_1.groups()
+                    
+                    if match_0 and match_1:
+                        for i in range(int(items_0[1]), int(items_1[1])+1):
+                            try:
+                                pipe = CovidPipe.objects.get(name="{}{}".format(items_0[0], str(i)))
+                                if estado == 'creado':
+                                    pipe.last_movement.state = Movement.CREATED
+                                elif estado == 'enviado':
+                                    pipe.last_movement.state = Movement.SENT
+
+                                if created:
+                                    pipe.last_movement.date_created = created
+
+                                if moved:
+                                    pipe.last_movement.date_sent = moved
+
+                                pipe.last_movement.save()
+                            except Exception as e:
+                                print(e)
+                    else:
+                        for i in range(int(inicio), int(fin)+1):
+                            try:
+                                pipe = CovidPipe.objects.get(name=str(i))
+                                if estado == 'creado':
+                                    pipe.last_movement.state = Movement.CREATED
+                                elif estado == 'enviado':
+                                    pipe.last_movement.state = Movement.SENT
+
+                                if created:
+                                    pipe.last_movement.date_created = created
+
+                                if moved:
+                                    pipe.last_movement.date_sent = moved
+
+                                pipe.last_movement.save()
+                                
+                            except Exception:
+                                pass
+                                    
+                except Exception as e:
+                    print(e)
+
+                return
+            for pipe in queryset:
+                if estado == 'creado':
+                    pipe.last_movement.state = Movement.CREATED
+                elif estado == 'enviado':
+                    pipe.last_movement.state = Movement.SENT
+
+                if created:
+                    pipe.last_movement.date_created = created
+
+                if moved:
+                    pipe.last_movement.date_sent = moved
+
+                pipe.last_movement.save()
+
+        else:
+            return render(request, 'admin/update_dates.html', context={'pipes':queryset, 'locations': locations})
 
     fieldsets = (
         (None, {
@@ -120,7 +270,11 @@ class PipeAdmin(admin.ModelAdmin):
         }),
     )
 
+    move.acts_on_all = True
     move.short_description = "Mover pipes"
+
+    update_dates.acts_on_all = True
+    update_dates.short_description = "Actualizar fechas / estado"
 
 
 class MovementAdmin(admin.ModelAdmin):
