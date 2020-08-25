@@ -34,7 +34,8 @@ if not CORS_ORIGIN_ALLOW_ALL:
 
 # Application definition
 DJANGO_APPS = [
-    "djangocms_admin_style",
+    'admin_interface',
+    'colorfield',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

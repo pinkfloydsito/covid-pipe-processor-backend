@@ -27,6 +27,6 @@ django-debug-toolbar==2.0
 django-debug-toolbar-request-history==0.1.0
 ipdb
 
-djangocms-admin-style
+django-admin-interface
 django-admin-rangefilter
 django-csp
