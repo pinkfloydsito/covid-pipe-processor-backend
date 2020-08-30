@@ -93,17 +93,25 @@ class DestinationListFilter(admin.SimpleListFilter):
             return movements
 
 
+class MovementInlineAdmin(admin.TabularInline):
+    # autocomplete_fields = ['supervisor']
+    model = Movement
+    verbose_name_plural = "Movimientos"
+    extra = 1
+
+
 class PipeAdmin(admin.ModelAdmin):
     class Meta:
         ordering = ('name', '-myinteger',)
 
+    inlines = (MovementInlineAdmin, )
     autocomplete_fields = ('last_movement', 'alias')
     list_per_page = 20000
     actions = ['move', 'update_dates',]
     search_fields = ['name']
     form = CovidPipeForm
     list_filter = (( 'last_movement__date_created', DateRangeFilter), ('last_movement__date_sent', DateRangeFilter), 'con_muestra', LocationFilter, )
-    list_display = ('name', 'con_muestra', 'get_date_prepared', 'get_date_sent', 'get_location')
+    list_display = ('name', 'con_muestra', 'get_date_prepared', 'get_date_sent', 'get_from_location', 'get_location')
 
     def get_queryset(self, request):
         qs = super(PipeAdmin, self).get_queryset(request)
@@ -121,7 +129,12 @@ class PipeAdmin(admin.ModelAdmin):
     def get_location(self, obj):
         return obj.last_movement.destination if obj.last_movement else 'No tiene ubicación'
 
-    get_location.short_description = 'Ubicación'
+    get_location.short_description = 'Destino'
+
+    def get_from_location(self, obj):
+        return obj.last_movement.origin if obj.last_movement else 'No tiene ubicación'
+
+    get_from_location.short_description = 'Origen'
 
     def get_date_created(self, obj):
         return (obj.last_movement and obj.last_movement.date_created) or ''
