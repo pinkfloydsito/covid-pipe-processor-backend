@@ -113,11 +113,16 @@ class PipeAdmin(admin.ModelAdmin):
     list_filter = (( 'last_movement__date_created', DateRangeFilter), ('last_movement__date_sent', DateRangeFilter), 'con_muestra', LocationFilter, )
     list_display = ('name', 'con_muestra', 'get_date_prepared', 'get_date_sent', 'get_from_location', 'get_location')
 
+    def get_ordering(self, request):
+        return ['mystring', 'myinteger']
+
     def get_queryset(self, request):
         qs = super(PipeAdmin, self).get_queryset(request)
         qs = qs.extra(
-            select={'myinteger': "CAST(substring(name FROM '^[0-9]+') AS INTEGER)"}
-        ).order_by('myinteger', 'name')
+            select={'myinteger': "NULLIF(regexp_replace(name, '\D','','g'), '')::numeric",
+                    'mystring': "translate(name,'0123456789','')"
+            }
+        ).order_by('mystring', 'myinteger')
         return qs
 
     def ordernamiento(self, obj):
