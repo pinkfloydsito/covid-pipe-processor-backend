@@ -106,7 +106,7 @@ class PipeAdmin(admin.ModelAdmin):
 
     inlines = (MovementInlineAdmin, )
     autocomplete_fields = ('last_movement', 'alias')
-    list_per_page = 20000
+    list_per_page = 1000
     actions = ['move', 'update_dates',]
     search_fields = ['name']
     form = CovidPipeForm
