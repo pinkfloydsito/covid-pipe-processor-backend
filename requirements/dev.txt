@@ -2,4 +2,4 @@ black==19.10b0
 pre-commit==2.6.0
 
 # Debugging
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
